@@ -29,6 +29,7 @@ class ExampleSensor(ISensor.ISensor):
             "units": "Celcius"
         }
         print(f"{self._name}: Reading the sensor and setting it to {config}")  
+        return config
 
     def stop(self):
         """
