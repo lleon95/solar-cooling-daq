@@ -9,7 +9,7 @@ class Sensors(Enum):
     """
     EXAMPLE_SENSOR=Annotated[int, "Example sensor implementation"]
 
-def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor:
+def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
     """
     Sensor Builder Factory
 

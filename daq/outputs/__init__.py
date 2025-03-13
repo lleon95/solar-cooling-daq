@@ -1,5 +1,5 @@
 from daq.outputs import csv
-from daq import ISensor
+from daq import IOutput
 from enum import Enum
 from typing import Annotated
 
@@ -11,7 +11,7 @@ class Outputs(Enum):
     CSV_FILE_WRITTER = Annotated[int, "CSV File Writter"]
 
 
-def OutputBuilder(val: Outputs, name: str, logger: object) -> ISensor:
+def OutputBuilder(val: Outputs, name: str, logger: object) -> IOutput.IOutput:
     """
     Output Builder Factory
 
