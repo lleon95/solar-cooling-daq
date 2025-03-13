@@ -4,6 +4,8 @@
 
 from daq import SensorBuilder, Sensors
 from daq import OutputBuilder, Outputs
+from daq import PollerBuilder, Pollers
+import time
 
 
 def main():
@@ -12,13 +14,21 @@ def main():
     # The sensors are only accessed from the factories
     sensor = SensorBuilder(Sensors.EXAMPLE_SENSOR, "mysensor", None)
     sensor.start(None)
-    val = sensor.read()
-    sensor.stop()
 
     # Outputs
     output = OutputBuilder(Outputs.CSV_FILE_WRITTER, "csvfile", None)
     output.open({'file': 'measurements.csv'})
-    output.write(val)
+
+    # Poller
+    poller = PollerBuilder(Pollers.ROUND_ROBIN, "poller", None)
+    poller.start(config={}, sensors=[sensor], outputs=[output])
+
+    # Wait for 30 seconds
+    time.sleep(30)
+
+    # Stop everything
+    poller.stop()
+    sensor.stop()
     output.close()
 
 

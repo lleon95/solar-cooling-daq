@@ -88,7 +88,6 @@ class CSVFileWriter(IOutput.IOutput):
             self.__file = open(filename, 'a', newline='',
                                buffering=self.__buffersize)
         else:
-            print("New file")
             self.__first_write = True
             self.__file = open(filename, 'w', newline='',
                                buffering=self.__buffersize)
