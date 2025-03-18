@@ -2,34 +2,90 @@
 # Author: Luis G. Leon Vega
 # License: See LICENSE
 
-from daq import SensorBuilder, Sensors
-from daq import OutputBuilder, Outputs
-from daq import PollerBuilder, Pollers
+import argparse
+import json
 import time
+
+import daq
+
+DEF_FILENAME = "config.json"
+
+
+def parse_json(filename: str) -> dict:
+    """Parses the configuration file from a JSON"""
+    d = None
+    with open(filename) as f:
+        d = json.load(f)
+    return d
+
+
+def sensor_construction(sensor: dict):
+    """Constructs the sensor"""
+    obj = daq.SensorBuilder(daq.Sensors(sensor["type"]), sensor["name"], None)
+    obj.start(sensor["config"])
+    return obj
+
+
+def output_construction(output: dict):
+    """Constructs the output"""
+    obj = daq.OutputBuilder(daq.Outputs(output["type"]), output["name"], None)
+    obj.open(output["config"])
+    return obj
+
+
+def poller_construction(poller: dict):
+    """Constructs the parser"""
+    obj = daq.PollerBuilder(daq.Pollers(poller["type"]), poller["name"], None)
+    return obj, poller["config"]
 
 
 def main():
     print("Hello from solar-cooling-daq!")
 
-    # The sensors are only accessed from the factories
-    sensor = SensorBuilder(Sensors.EXAMPLE_SENSOR, "mysensor", None)
-    sensor.start(None)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-c",
+        "--config",
+        type=str,
+        help="Configuration file",
+        default=DEF_FILENAME,
+    )
+    args = parser.parse_args()
 
-    # Outputs
-    output = OutputBuilder(Outputs.CSV_FILE_WRITTER, "csvfile", None)
-    output.open({'file': 'measurements.csv'})
+    print(f"Parsing JSON file: {args.config}")
+    try:
+        json_obj = parse_json(args.config)
+    except FileNotFoundError:
+        print("Cannot open the configuration file")
+        exit()
 
-    # Poller
-    poller = PollerBuilder(Pollers.ROUND_ROBIN, "poller", None)
-    poller.start(config={}, sensors=[sensor], outputs=[output])
+    print("Building sensors")
+    sensors = [
+        sensor_construction(sensor)
+        for sensor in json_obj["groups"][0]["sensors"]
+    ]
+    print("Building output")
+    outputs = [
+        output_construction(output)
+        for output in json_obj["groups"][0]["outputs"]
+    ]
+    print("Building poller")
+    poller, configpoller = poller_construction(json_obj["groups"][0]["poller"])
+    print(f"Built {len(sensors)} sensors y {len(outputs)} outputs")
 
-    # Wait for 30 seconds
+    print("Starting the Poller")
+    poller.start(config=configpoller, sensors=sensors, outputs=outputs)
+
+    print("Waiting 30 secs for finishing")
     time.sleep(30)
 
-    # Stop everything
+    print("Stopping")
     poller.stop()
-    sensor.stop()
-    output.close()
+    for sensor in sensors:
+        sensor.stop()
+
+    for output in outputs:
+        output.close()
 
 
 if __name__ == "__main__":
