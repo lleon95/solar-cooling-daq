@@ -8,7 +8,7 @@ class Outputs(Enum):
     """
     Enum to enumerate the supported output mechanisms
     """
-    CSV_FILE_WRITTER = Annotated[int, "CSV File Writter"]
+    CSV_FILE_WRITTER = Annotated[int, "CSV File Writter"](0)
 
 
 def OutputBuilder(val: Outputs, name: str, logger: object) -> IOutput.IOutput:
