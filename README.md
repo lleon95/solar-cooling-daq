@@ -2,15 +2,18 @@
 
 ## Install
 
-Make sure of installing uv:
+Make sure of installing the dependencies:
 
 ```bash
-sudo pip3 install uv
+sudo pip3 install uv pre-commit black flake8 isort
 ```
 
 Then,
 
 ```bash
+# For development only
+pre-commit install
+
 uv sync
 ```
 
@@ -24,7 +27,7 @@ To be completed later.
 
 ## Using and Extending
 
-The overall architecture of this project is based on the interface-adapter. The instances are generated through a factory function that creates and returns an object of a given implementation. 
+The overall architecture of this project is based on the interface-adapter. The instances are generated through a factory function that creates and returns an object of a given implementation.
 
 ### Usage
 
