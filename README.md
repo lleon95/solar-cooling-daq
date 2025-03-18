@@ -125,7 +125,7 @@ where `from daq.sensors import example`, example corresponds to the created file
 
 ## Configuration
 
-To be completed...
+Please, read the [Configuration Guide](docs/Configuration.md).
 
 ## Authors and Citation
 
