@@ -1,4 +1,4 @@
-from daq.sensors import example
+from daq.sensors import *
 from daq import ISensor
 from enum import Enum
 from typing import Annotated
@@ -7,7 +7,7 @@ class Sensors(Enum):
     """
     Enum to enumerate the supported sensors
     """
-    EXAMPLE_SENSOR=Annotated[int, "Example sensor implementation"]
+    EXAMPLE_SENSOR=Annotated[int, "Example sensor implementation"](0)
 
 def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
     """
@@ -17,5 +17,5 @@ def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
     them without accessing to the classes directly
     """
     if (val == Sensors.EXAMPLE_SENSOR):
-        return example.ExampleSensor(name, logger)
+        return ExampleSensor(name, logger)
     return None

@@ -8,7 +8,7 @@ class Pollers(Enum):
     """
     Enum to enumerate the supported sensors
     """
-    ROUND_ROBIN = Annotated[int, "Round Robin implementation for the Poller"]
+    ROUND_ROBIN = Annotated[int, "Round Robin implementation for the Poller"](0)
 
 
 def PollerBuilder(val: Pollers, name: str, logger: object) -> IPoller.IPoller:
