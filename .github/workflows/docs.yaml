@@ -1,0 +1,41 @@
+name: Generate & Deploy Docs
+
+on:
+  push:
+    branches: [main, develop, feature/add-docs]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Prepare README for pdoc
+        run: cd docs && python prepare_links.py && cd ..
+
+      - name: Build docs with pdoc
+        run: |
+          pdoc my_package \
+            --output-dir docs \
+            --show-source
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs
