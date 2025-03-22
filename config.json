@@ -15,6 +15,16 @@
                 "name": "sensor3",
                 "type": 0,
                 "config": {}
+            },
+            {
+                "name": "myvoltagesensor0",
+                "type": 1,
+                "config": {
+                    "busnum": 1,
+                    "gain": 1,
+                    "channel": 0,
+                    "vmax": 4.096
+                }
             }
         ],
         "outputs": [
@@ -22,7 +32,7 @@
                 "name": "csvwritter",
                 "type": 0,
                 "config": {
-                    "file": "measurements.csv"
+                    "file": "adrian.csv"
                 }
             }
         ],
