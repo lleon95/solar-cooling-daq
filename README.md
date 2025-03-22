@@ -23,6 +23,13 @@ uv sync
 uv run ./main.py
 ```
 
+## Generating the docs
+
+```bash
+cd docs && python3 ./prepare_links.py && cd ..
+pdoc daq  --output-dir docs --show-source
+```
+
 To be completed later.
 
 ## Using and Extending

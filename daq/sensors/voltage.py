@@ -33,6 +33,17 @@ class VoltageSensor(ISensor.ISensor):
         * gain: voltage gain
         * channel: channel to read within the four
         * vmax: maximum voltage that can be read
+
+        Example on a Raspberry Pi 4:
+
+        ```python3
+        config = {
+          "busnum": 1,
+          "gain": 1,
+          "channel": 0,
+          "vmax": 4.096
+        }
+        ```
         """
         try:
             self._busnum = config["busnum"]
