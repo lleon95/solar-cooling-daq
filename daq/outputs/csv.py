@@ -3,8 +3,9 @@
 # License: See LICENSE
 
 import csv
-from daq import IOutput
 from pathlib import Path
+
+from daq import IOutput
 
 
 class CSVFileWriter(IOutput.IOutput):
@@ -28,9 +29,11 @@ class CSVFileWriter(IOutput.IOutput):
         The ideal case would be a dictionary of sensor readings, where each
         key belongs to a standardised sensor identifier. For instance:
 
+        ```python
         {
           'temp_surface_0': 23.5
         }
+        ```
 
         where temp is the type of sensor, surface is the location, 0 is the
         index.
@@ -40,16 +43,18 @@ class CSVFileWriter(IOutput.IOutput):
         result : dict
             The result to register
         """
-        if (self.__file is None):
+        if self.__file is None:
             raise FileNotFoundError(
-                "The file has not been opened. Use the open method")
+                "The file has not been opened. Use the open method"
+            )
 
         # Initialise instances
-        if (self.__csvwriter is None):
+        if self.__csvwriter is None:
             self.__csvwriter = csv.DictWriter(
-                self.__file, fieldnames=result.keys())
+                self.__file, fieldnames=result.keys()
+            )
 
-        if (self.__first_write):
+        if self.__first_write:
             self.__csvwriter.writeheader()
             self.__first_write = False
 
@@ -65,10 +70,12 @@ class CSVFileWriter(IOutput.IOutput):
 
         The configuration required is:
 
+        ```python
         {
           'file': '/tmp/mydata.csv',
           'nchars': 1000
         }
+        ```
 
         where the file is the output file and nchars are the number of
         characters to hold before writing.
@@ -78,19 +85,21 @@ class CSVFileWriter(IOutput.IOutput):
         config : dict
             The configuration of the instance
         """
-        filename = config['file']
-        self.__buffersize = config.get('nchars', self.__buffersize)
+        filename = config["file"]
+        self.__buffersize = config.get("nchars", self.__buffersize)
 
         # Check whether the exists or not
         file = Path(filename)
-        if (file.is_file()):
+        if file.is_file():
             self.__first_write = False
-            self.__file = open(filename, 'a', newline='',
-                               buffering=self.__buffersize)
+            self.__file = open(
+                filename, "a", newline="", buffering=self.__buffersize
+            )
         else:
             self.__first_write = True
-            self.__file = open(filename, 'w', newline='',
-                               buffering=self.__buffersize)
+            self.__file = open(
+                filename, "w", newline="", buffering=self.__buffersize
+            )
         self._started = True
 
     def close(self):
