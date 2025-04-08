@@ -4,6 +4,7 @@
 
 from threading import Lock
 
+from flirimageextractor import FlirImageExtractor
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -29,6 +30,7 @@ class FLIRCamera(ISensor.ISensor):
         self._observer = None
         self._new_files = []
         self._lock = Lock()
+        self._flir = FlirImageExtractor()
 
     class _Handler(FileSystemEventHandler):
         def __init__(self, lock, queue):
@@ -72,7 +74,6 @@ class FLIRCamera(ISensor.ISensor):
         self._observer.schedule(handler, path=self._path, recursive=True)
         self._observer.start()
 
-        print(f"{self._name}: Starting with config {config}")
         self._started = True
 
     def read(self) -> dict:
@@ -92,6 +93,12 @@ class FLIRCamera(ISensor.ISensor):
         self._lock.release()
 
         config["path"] = fpath
+        if fpath == "":
+            return {}
+
+        self._flir.process_image(fpath)
+        thermal_raw = self._flir.get_thermal_np()
+        config["thermalimage"] = thermal_raw
 
         return config
 
