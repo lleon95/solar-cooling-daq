@@ -2,7 +2,10 @@
 # Author: Luis G. Leon Vega
 # License: See LICENSE
 
-from threading import Lock
+from os import listdir, path
+from shutil import copytree, rmtree
+from threading import Lock, Thread
+from time import sleep
 
 from flirimageextractor import FlirImageExtractor
 from watchdog.events import FileSystemEventHandler
@@ -31,6 +34,9 @@ class FLIRCamera(ISensor.ISensor):
         self._new_files = []
         self._lock = Lock()
         self._flir = FlirImageExtractor()
+        self._backup_path = "./tmp"
+        self._reference = None
+        self._thread = None
 
     class _Handler(FileSystemEventHandler):
         def __init__(self, lock, queue):
@@ -44,6 +50,32 @@ class FLIRCamera(ISensor.ISensor):
                 self._queue.append(event.src_path)
                 self._lock.release()
                 return super().on_created(event)
+
+    def _monitor_thread(self):
+        """
+        Worker thread to monitor the files at a rate
+
+        This finds the directories from the camera and copies the directories
+        to a local path. Afterwards, it deletes the directories from the
+        camera.
+        """
+        while self._started:
+            sleep(1.0 / self._trigger_rate)
+
+            # Move the files
+            self._lock.acquire()
+
+            try:
+                for i in listdir(self._path):
+                    filepath = path.join(self._path, i)
+                    if not path.isdir(filepath):
+                        continue
+                    copytree(filepath, self._backup_path, dirs_exist_ok=True)
+                    rmtree(filepath, ignore_errors=True)
+            except Exception:
+                pass
+
+            self._lock.release()
 
     def start(self, config: dict):
         """
@@ -71,10 +103,16 @@ class FLIRCamera(ISensor.ISensor):
         # Initialise the Observer
         self._observer = Observer()
         handler = self._Handler(self._lock, self._new_files)
-        self._observer.schedule(handler, path=self._path, recursive=True)
+        self._observer.schedule(
+            handler, path=self._backup_path, recursive=True
+        )
         self._observer.start()
 
         self._started = True
+
+        # Launch thread for reading images
+        self.__thread = Thread(target=self._monitor_thread)
+        self.__thread.start()
 
     def read(self) -> dict:
         """
@@ -84,11 +122,14 @@ class FLIRCamera(ISensor.ISensor):
         fpath = ""
 
         self._lock.acquire()
-        if len(self._new_files) > 0:
+        while len(self._new_files) > 0:
             if self._average == "last":
                 fpath = self._new_files.pop(-1)
             else:
                 fpath = self._new_files.pop(0)
+            if ".jpg" in fpath:
+                break
+
         self._new_files.clear()
         self._lock.release()
 
@@ -110,3 +151,5 @@ class FLIRCamera(ISensor.ISensor):
             self._observer.stop()
             self._observer.join()
         self._started = False
+        if self.__thread:
+            self.__thread.join()
