@@ -2,6 +2,7 @@
 # Author: Luis G. Leon Vega
 # License: See LICENSE
 
+import copy
 import csv
 from pathlib import Path
 
@@ -22,6 +23,7 @@ class CSVFileWriter(IOutput.IOutput):
         self.__file = None
         self.__csvwriter = None
         self.__buffersize = 1000
+        self.__filter = []
 
     def write(self, result: dict):
         """Writes a result into the CSV
@@ -48,10 +50,21 @@ class CSVFileWriter(IOutput.IOutput):
                 "The file has not been opened. Use the open method"
             )
 
+        result_copy = copy.deepcopy(result)
+        keys = list(result.keys())
+        filter = list(self.__filter)
+        drop_keys = []
+
+        for element in filter:
+            drop_keys = drop_keys + self._filter_keys(keys, element)
+
+        for key in drop_keys:
+            del result_copy[key]
+
         # Initialise instances
         if self.__csvwriter is None:
             self.__csvwriter = csv.DictWriter(
-                self.__file, fieldnames=result.keys()
+                self.__file, fieldnames=result_copy.keys()
             )
 
         if self.__first_write:
@@ -59,7 +72,7 @@ class CSVFileWriter(IOutput.IOutput):
             self.__first_write = False
 
         # Write
-        self.__csvwriter.writerow(result)
+        self.__csvwriter.writerow(result_copy)
 
     def open(self, config: dict):
         """Opens a new instance to start registering data
@@ -87,6 +100,7 @@ class CSVFileWriter(IOutput.IOutput):
         """
         filename = config["file"]
         self.__buffersize = config.get("nchars", self.__buffersize)
+        self.__filter = config.get("filter", [])
 
         # Check whether the exists or not
         file = Path(filename)
