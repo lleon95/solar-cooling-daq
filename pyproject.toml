@@ -9,4 +9,5 @@ dependencies = [
     "pdoc",
     "watchdog",
     "FlirImageExtractor==1.5.3",
+    "gpiozero==2.0.1",
 ]
