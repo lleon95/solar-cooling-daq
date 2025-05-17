@@ -1,4 +1,4 @@
-from daq.outputs import csv
+from daq.outputs import csv, console
 from daq import IOutput
 from enum import Enum
 from typing import Annotated
@@ -9,6 +9,7 @@ class Outputs(Enum):
     Enum to enumerate the supported output mechanisms
     """
     CSV_FILE_WRITTER = Annotated[int, "CSV File Writter"](0)
+    CONSOLE_WRITTER = Annotated[int, "Console Writter"](1)
 
 
 def OutputBuilder(val: Outputs, name: str, logger: object) -> IOutput.IOutput:
@@ -20,4 +21,6 @@ def OutputBuilder(val: Outputs, name: str, logger: object) -> IOutput.IOutput:
     """
     if (val == Outputs.CSV_FILE_WRITTER):
         return csv.CSVFileWriter(name, logger)
+    elif (val == Outputs.CONSOLE_WRITTER):
+        return console.ConsoleWriter(name, logger)
     return None
