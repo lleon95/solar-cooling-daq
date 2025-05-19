@@ -16,7 +16,6 @@ MUX_S2 = DigitalOutputDevice(22)
 
 def SetMux(sel: int):
     val_str = bin(sel + 8)
-    print(val_str, sel)
     MUX_S0.value = int(val_str[5])
     MUX_S1.value = int(val_str[4])
     MUX_S2.value = int(val_str[3])
