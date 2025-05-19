@@ -24,6 +24,7 @@ class CSVFileWriter(IOutput.IOutput):
         self.__csvwriter = None
         self.__buffersize = 1000
         self.__filter = []
+        self.__config = None
 
     def write(self, result: dict):
         """Writes a result into the CSV
@@ -71,8 +72,9 @@ class CSVFileWriter(IOutput.IOutput):
             self.__csvwriter.writeheader()
             self.__first_write = False
 
-        # Write
+        # Write and flush
         self.__csvwriter.writerow(result_copy)
+        self.__file.flush()
 
     def open(self, config: dict):
         """Opens a new instance to start registering data

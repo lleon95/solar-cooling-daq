@@ -8,6 +8,8 @@ Make sure of installing the dependencies:
 sudo pip3 install uv pre-commit black flake8 isort
 ```
 
+Install the rclone and configure it from [here](https://rclone.org/downloads/).
+
 Then,
 
 ```bash
@@ -16,6 +18,7 @@ pre-commit install
 
 uv sync
 ```
+
 
 ## Running
 

@@ -42,7 +42,7 @@
                 "name": "csvwriter",
                 "type": 0,
                 "config": {
-                    "file": "adrian.csv",
+                    "file": "/home/pi/agrivoltaic/cache/adrian.csv",
                     "filter": [
                         ".*sensor1"
                     ]
@@ -53,13 +53,22 @@
                 "type": 1,
                 "config": {
                 }
+            },
+            {
+                "name": "rclone",
+                "type": 2,
+                "config": {
+                    "remote_path": "/agrivoltaic",
+                    "remote": "ecaslab",
+                    "host_path": "/home/pi/agrivoltaic/cache"
+                }
             }
         ],
         "poller": {
             "name": "poller",
             "type": 0,
             "config": {
-                "interval": 1
+                "interval": 15
             }
         }
     }]
