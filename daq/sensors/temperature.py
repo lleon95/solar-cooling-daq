@@ -45,6 +45,8 @@ class TemperatureSensor(ISensor.ISensor):
         self._channel = 0
         self._busnum = 1
 
+        self._units = "Celcius"
+
     def start(self, config: dict):
         """
         Starts the sensor
@@ -57,6 +59,7 @@ class TemperatureSensor(ISensor.ISensor):
         * muxsel: input on the multiplexer
         * slope: multiplier to convert voltage by temperature.
         * offset: minimum temperature.
+        * units: units of the temperature
 
         Example on a Raspberry Pi 4:
 
@@ -68,7 +71,8 @@ class TemperatureSensor(ISensor.ISensor):
           "channel": 0,
           "muxsel": 0,
           "slope": 1.0,
-          "offset": 0.0
+          "offset": 0.0,
+          "units": "Celcius"
         }
         ```
         """
@@ -79,6 +83,7 @@ class TemperatureSensor(ISensor.ISensor):
         self._offset = config.get("offset", self._offset)
         self._muxsel = config.get("muxsel", self._muxsel)
         self._vmax = config.get("vmax", self._vmax)
+        self._units = config.get("units", self._units)
         self._started = True
 
     def read(self) -> dict:
