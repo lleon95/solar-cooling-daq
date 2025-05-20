@@ -42,7 +42,7 @@
                 "name": "csvwriter",
                 "type": 0,
                 "config": {
-                    "file": "/home/pi/agrivoltaic/cache/adrian.csv",
+                    "file": "/home/pi/agrivoltaic/cache/results.csv",
                     "filter": [
                         ".*sensor1"
                     ]
