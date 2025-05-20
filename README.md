@@ -238,9 +238,10 @@ Please, find the API documentation in [this link](https://lleon95.github.io/sola
 
 ## Authors and Citation
 
-* Luis G. Leon-Vega (l.leon@itcr.ac.cr)
-* Adrian Rodriguez-Murillo (adri1510.rm@estudiantec.cr)
+* Luis G. Leon Vega (l.leon@itcr.ac.cr)
+* Maickol Fernandez Obando (unknownhuman@estudiantec.cr)
 * Justin Alfaro Araya (jualfaro@estudiantec.cr)
+* Adrian Rodriguez Murillo (adri1510.rm@estudiantec.cr)
 * Leonardo Cardinale Villalobos (lcardinale@itcr.ac.cr)
 
 Thanks to Instituto Tecnologico de Costa Rica
