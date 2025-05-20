@@ -5,8 +5,105 @@
 Make sure of installing the dependencies:
 
 ```bash
-sudo pip3 install uv pre-commit black flake8 isort
+sudo pip3 install uv pre-commit black flake8 isort pdoc
 ```
+
+### Installing rclone
+
+Install the rclone and configure it from [here](https://rclone.org/downloads/).
+
+The steps are:
+
+1. Install the rclone:
+
+```bash
+sudo -v ; curl https://rclone.org/install.sh | sudo bash
+```
+
+2. Configure rclone:
+
+```bash
+rclone config
+```
+
+And follow the wizard:
+
+```
+No remotes found, make a new one?
+n) New remote
+r) Rename remote
+c) Copy remote
+s) Set configuration password
+q) Quit config
+n/r/c/s/q> n <-----------
+name> remote
+Type of storage to configure.
+Choose a number from below, or type in your own value
+[snip]
+XX / Google Drive
+   \ "drive"
+[snip]
+Storage> drive  <-----------
+Google Application Client Id - leave blank normally.
+client_id>
+Google Application Client Secret - leave blank normally.
+client_secret>
+Scope that rclone should use when requesting access from drive.
+Choose a number from below, or type in your own value
+ 1 / Full access all files, excluding Application Data Folder.
+   \ "drive"
+ 2 / Read-only access to file metadata and file contents.
+   \ "drive.readonly"
+   / Access to files created by rclone only.
+ 3 | These are visible in the drive website.
+   | File authorization is revoked when the user deauthorizes the app.
+   \ "drive.file"
+   / Allows read and write access to the Application Data folder.
+ 4 | This is not visible in the drive website.
+   \ "drive.appfolder"
+   / Allows read-only access to file metadata but
+ 5 | does not allow any access to read or download file content.
+   \ "drive.metadata.readonly"
+scope> 1 <-----------
+Service Account Credentials JSON file path - needed only if you want use SA instead of interactive login.
+service_account_file>
+Remote config
+Use web browser to automatically authenticate rclone with remote?
+ * Say Y if the machine running rclone has a web browser you can use
+ * Say N if running rclone on a (remote) machine without web browser access
+If not sure try Y. If Y failed, try N.
+y) Yes
+n) No
+y/n> y <-----------
+If your browser doesn't open automatically go to the following link: http://127.0.0.1:53682/auth
+Log in and authorize rclone for access
+Waiting for code...
+Got code
+Configure this as a Shared Drive (Team Drive)?
+y) Yes
+n) No
+y/n> n <-----------
+Configuration complete.
+Options:
+type: drive
+- client_id:
+- client_secret:
+- scope: drive
+- root_folder_id:
+- service_account_file:
+- token: {"access_token":"XXX","token_type":"Bearer","refresh_token":"XXX","expiry":"2014-03-16T13:57:58.955387075Z"}
+Keep this "remote" remote?
+y) Yes this is OK
+e) Edit this remote
+d) Delete this remote
+y/e/d> y <-----------
+```
+
+And that's it.
+
+For reference, our remote is called "ecaslab."
+
+### Installing the project
 
 Then,
 
@@ -16,6 +113,7 @@ pre-commit install
 
 uv sync
 ```
+
 
 ## Running
 
@@ -80,7 +178,7 @@ Create a python file in the corresponding category folder with the name of the i
 * Pollers: daq/pollers
 * Outputs: daq/outputs
 
-If you are willing to create an implementation to upload data to a Google Drive, you can create a new file in `daq/outputs/gdrivewriter.py`.
+If you are willing to create an implementation to upload data to a Google Drive, you can create a new file in `daq/outputs/reclone.py`.
 
 2. Create and implement a class derived from the interface:
 
