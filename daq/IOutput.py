@@ -2,7 +2,9 @@
 # Author: Luis G. Leon Vega
 # License: See LICENSE
 
+import re
 from abc import ABC, abstractmethod
+
 
 class IOutput(ABC):
     """
@@ -25,13 +27,14 @@ class IOutput(ABC):
     -------
     write(result: dict)
         Register the result from a dictionary
-    
+
     open(config: dict)
         open a instance
 
     close()
         close a instance
     """
+
     def __init__(self, name: str, logger=None):
         self._name = name
         self._started = False
@@ -46,6 +49,20 @@ class IOutput(ABC):
     def started(self) -> bool:
         """Returns the status of the instance"""
         return self._started
+
+    def _filter_keys(self, string_list, pattern):
+        """
+        Finds strings in a list that match a given regular expression pattern.
+
+        Args:
+            string_list: A list of strings to search.
+            pattern: The regular expression pattern to match.
+
+        Returns:
+            A list of strings that match the pattern.
+        """
+        matched_strings = [s for s in string_list if re.search(pattern, s)]
+        return matched_strings
 
     @abstractmethod
     def write(self, result: dict):

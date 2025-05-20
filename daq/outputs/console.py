@@ -3,30 +3,23 @@
 # License: See LICENSE
 
 import copy
-import csv
-from pathlib import Path
 
 from daq import IOutput
 
 
-class CSVFileWriter(IOutput.IOutput):
+class ConsoleWriter(IOutput.IOutput):
     """
-    Implementation of a CSV filewriter
+    Implementation of a Console filewriter
 
-    This imeplementations creates and appends content to a CSV file in order
-    to save the measurements performed along the execution
+    This implementation writes everything into the console (stdout)
     """
 
     def __init__(self, name: str, logger=None):
         super().__init__(name, logger)
-        self.__first_write = False
-        self.__file = None
-        self.__csvwriter = None
-        self.__buffersize = 1000
         self.__filter = []
 
     def write(self, result: dict):
-        """Writes a result into the CSV
+        """Writes a result into the console
 
         The ideal case would be a dictionary of sensor readings, where each
         key belongs to a standardised sensor identifier. For instance:
@@ -45,11 +38,6 @@ class CSVFileWriter(IOutput.IOutput):
         result : dict
             The result to register
         """
-        if self.__file is None:
-            raise FileNotFoundError(
-                "The file has not been opened. Use the open method"
-            )
-
         result_copy = copy.deepcopy(result)
         keys = list(result.keys())
         filter = list(self.__filter)
@@ -61,18 +49,8 @@ class CSVFileWriter(IOutput.IOutput):
         for key in drop_keys:
             del result_copy[key]
 
-        # Initialise instances
-        if self.__csvwriter is None:
-            self.__csvwriter = csv.DictWriter(
-                self.__file, fieldnames=result_copy.keys()
-            )
-
-        if self.__first_write:
-            self.__csvwriter.writeheader()
-            self.__first_write = False
-
         # Write
-        self.__csvwriter.writerow(result_copy)
+        print(result_copy)
 
     def open(self, config: dict):
         """Opens a new instance to start registering data
@@ -85,43 +63,21 @@ class CSVFileWriter(IOutput.IOutput):
 
         ```python
         {
-          'file': '/tmp/mydata.csv',
-          'nchars': 1000
+          'filter': '*pattern.csv',
         }
         ```
-
-        where the file is the output file and nchars are the number of
-        characters to hold before writing.
 
         Parameters
         ----------
         config : dict
             The configuration of the instance
         """
-        filename = config["file"]
-        self.__buffersize = config.get("nchars", self.__buffersize)
         self.__filter = config.get("filter", [])
 
         # Check whether the exists or not
-        file = Path(filename)
-        if file.is_file():
-            self.__first_write = False
-            self.__file = open(
-                filename, "a", newline="", buffering=self.__buffersize
-            )
-        else:
-            self.__first_write = True
-            self.__file = open(
-                filename, "w", newline="", buffering=self.__buffersize
-            )
         self._started = True
 
     def close(self):
         """Closes the instance
-
-        Flushes the contents to the file
         """
-        self.__file.close()
-        self.__file = None
-        self.__csvwriter = None
         self._started = False

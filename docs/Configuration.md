@@ -49,7 +49,7 @@ Similar to the sensors, the output has a structure, which is the following:
 
 ```json
 {
-    "name": "csvwritter",
+    "name": "csvwriter",
     "type": 0,
     "config": {
         "file": "./measurements.csv",
@@ -58,7 +58,7 @@ Similar to the sensors, the output has a structure, which is the following:
 }
 ```
 
-It shared the same attributes as in sensor. However, the key difference is that the `config` has different attributes and it depends on the writter. For instance, a file writter receives a file, whereas a remote writter requires other configs. `type` corresponds to the indices from the `Outputs` enumerator, available in: [daq/outputs/__init__.py](../daq/outputs/__init__.py)
+It shared the same attributes as in sensor. However, the key difference is that the `config` has different attributes and it depends on the writer. For instance, a file writer receives a file, whereas a remote writer requires other configs. `type` corresponds to the indices from the `Outputs` enumerator, available in: [daq/outputs/__init__.py](../daq/outputs/__init__.py)
 
 ## Configuring the poller
 

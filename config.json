@@ -29,10 +29,13 @@
         ],
         "outputs": [
             {
-                "name": "csvwritter",
+                "name": "csvwriter",
                 "type": 0,
                 "config": {
-                    "file": "adrian.csv"
+                    "file": "adrian.csv",
+                    "filter": [
+                        ".*sensor1"
+                    ]
                 }
             }
         ],

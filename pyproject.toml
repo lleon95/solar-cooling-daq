@@ -3,5 +3,10 @@ name = "solar-cooling-daq"
 version = "0.1.0"
 description = "A capture system to analyse solar cells behaviour while varying temperature"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = ["Adafruit-ADS1x15", "pdoc"]
+requires-python = "==3.9.21"
+dependencies = [
+    "Adafruit-ADS1x15",
+    "pdoc",
+    "watchdog",
+    "FlirImageExtractor==1.5.3",
+]
