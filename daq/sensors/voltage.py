@@ -20,7 +20,7 @@ class VoltageSensor(ISensor.ISensor):
         self._gain = 1
         self._channel = 0
         self._vmax = 4.096
-        self._res = 1 << 16
+        self._res = 1 << 15
         self._busnum = 0
 
     def start(self, config: dict):
