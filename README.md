@@ -232,6 +232,10 @@ where `from daq.sensors import example`, example corresponds to the created file
 
 Please, read the [Configuration Guide](docs/Configuration.md).
 
+## API documentation
+
+Please, find the API documentation in [this link](https://lleon95.github.io/solar-cooling-daq/).
+
 ## Authors and Citation
 
 * Luis G. Leon-Vega (l.leon@itcr.ac.cr)

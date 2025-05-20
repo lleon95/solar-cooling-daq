@@ -81,3 +81,9 @@ The poller also shares the same structure as the aforementioned. However, the di
 ## Example
 
 You can refer to the [config.json](../config.json) file for a reference example.
+
+## Documentation
+
+For all the configurations available and class documentation, please, refer to the [API documentation](https://lleon95.github.io/solar-cooling-daq/).
+
+Within the documentation, please, find the outputs, sensors and pollers to find the documentation of each implementation.
