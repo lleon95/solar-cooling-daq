@@ -2,7 +2,9 @@ from enum import Enum
 from typing import Annotated
 
 from daq import ISensor
-from daq.sensors import example, flircamera, power, temperature, voltage
+
+from daq.sensors import example, flircamera, power, temperature  # isort: skip
+from daq.sensors import temphumidity, voltage  # isort: skip
 
 
 class Sensors(Enum):
@@ -17,6 +19,7 @@ class Sensors(Enum):
         int, "Temperature sensor from the AgriVoltaic Project"
     ](3)
     POWER_SENSOR = Annotated[int, "Power sensor based on the INA228"](4)
+    TEMPHUMIDITY_SENSOR = Annotated[int, "DHT22 Temperature + Humidity"](5)
 
 
 def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
@@ -36,4 +39,6 @@ def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
         return temperature.TemperatureSensor(name, logger)
     elif val == Sensors.POWER_SENSOR:
         return power.PowerSensor(name, logger)
+    elif val == Sensors.TEMPHUMIDITY_SENSOR:
+        return temphumidity.TempHumiditySensor(name, logger)
     return None
