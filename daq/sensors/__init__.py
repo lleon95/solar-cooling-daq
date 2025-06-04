@@ -4,7 +4,7 @@ from typing import Annotated
 from daq import ISensor
 
 from daq.sensors import example, flircamera, power, adsmux  # isort: skip
-from daq.sensors import temphumidity, voltage  # isort: skip
+from daq.sensors import temphumidity, voltage, encoder  # isort: skip
 
 
 class Sensors(Enum):
@@ -20,6 +20,7 @@ class Sensors(Enum):
     ](3)
     POWER_SENSOR = Annotated[int, "Power sensor based on the INA228"](4)
     TEMPHUMIDITY_SENSOR = Annotated[int, "DHT22 Temperature + Humidity"](5)
+    ENCODER_SENSOR = Annotated[int, "Button-based encoder sensor"](6)
 
 
 def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
@@ -41,4 +42,6 @@ def SensorBuilder(val: Sensors, name: str, logger: object) -> ISensor.ISensor:
         return power.PowerSensor(name, logger)
     elif val == Sensors.TEMPHUMIDITY_SENSOR:
         return temphumidity.TempHumiditySensor(name, logger)
+    elif val == Sensors.ENCODER_SENSOR:
+        return encoder.EncoderSensor(name, logger)
     return None
