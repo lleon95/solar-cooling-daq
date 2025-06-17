@@ -100,6 +100,7 @@ class FLIRCamera(ISensor.ISensor):
         - trigger-rate: how often to capture new images (Hz)
         - sample-system: "last" (default), "first"
         - trigger-pin: PWM pin to trigger the camera
+        - cache-path: where files are going to be placed
         """
         try:
             self._path = config["capture-path"]
@@ -107,6 +108,7 @@ class FLIRCamera(ISensor.ISensor):
         except KeyError:
             print("Error: The capture path or trigger pin is not available")
 
+        self._backup_path = config.get("cache-path", self._backup_path)
         self._average = config.get("sample-system", self._average)
         self._trigger_rate = config.get("trigger-rate", self._trigger_rate)
         self._trigger = PWMLED(
