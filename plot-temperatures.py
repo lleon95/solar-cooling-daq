@@ -12,12 +12,24 @@ def main():
         print("[ERROR]: needs the image path as an argument")
         exit(-1)
 
+    # Decode image
     flir = FlirImageExtractor()
-
     flir.process_image(argv[1])
     thermal_raw = flir.get_thermal_np()
 
-    plt.imshow(thermal_raw)
+    # Extract the ROIs
+    panel1 = thermal_raw[100:145,150:200]
+    panel2 = thermal_raw[100:145,200:250]
+
+    # Plot
+    plt.figure(1)
+    plt.title("Left Panel")
+    plt.imshow(panel1)
+
+    plt.title("Right Panel")
+    plt.figure(2)
+    plt.imshow(panel2)
+
     plt.show()
 
 
