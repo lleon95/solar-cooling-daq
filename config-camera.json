@@ -1,0 +1,35 @@
+{
+    "groups": [{
+        "sensors": [
+            {
+                "name": "thermal",
+                "type": 2,
+                "config" : {
+                    "capture-path": "/home/pi/agrivoltaic/cam",
+                    "sample-system": "last",
+                    "trigger-rate": 0.01,
+                    "trigger-pin": 24,
+                    "cache-path": "/home/pi/agrivoltaic/cache/cam"
+                }
+            }
+        ],
+        "outputs": [
+            {
+                "name": "rclone",
+                "type": 2,
+                "config": {
+                    "remote_path": "/agrivoltaic",
+                    "remote": "ecaslab",
+                    "host_path": "/home/pi/agrivoltaic/cache"
+                }
+            }
+        ],
+        "poller": {
+            "name": "poller",
+            "type": 0,
+            "config": {
+                "interval": 600
+            }
+        }
+    }]
+}

@@ -4,7 +4,6 @@
 
 import argparse
 import json
-import time
 
 import daq
 
@@ -76,8 +75,9 @@ def main():
     print("Starting the Poller")
     poller.start(config=configpoller, sensors=sensors, outputs=outputs)
 
-    print("Waiting 30 secs for finishing")
-    time.sleep(30)
+    print("Running...")
+    while True:
+        pass
 
     print("Stopping")
     poller.stop()

@@ -8,6 +8,7 @@ from threading import Lock, Thread
 from time import sleep
 
 from flirimageextractor import FlirImageExtractor
+from gpiozero import PWMLED
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -37,6 +38,8 @@ class FLIRCamera(ISensor.ISensor):
         self._backup_path = "./tmp"
         self._reference = None
         self._thread = None
+        self._trigger_pin = 24
+        self._trigger = None
 
     class _Handler(FileSystemEventHandler):
         def __init__(self, lock, queue):
@@ -75,6 +78,11 @@ class FLIRCamera(ISensor.ISensor):
             except Exception:
                 pass
 
+            # Capture
+            if self._trigger is not None:
+                self._trigger.value = 0.2
+                sleep(0.75)
+                self._trigger.value = 0.01
             self._lock.release()
 
     def start(self, config: dict):
@@ -91,14 +99,22 @@ class FLIRCamera(ISensor.ISensor):
         - capture-path: where the images are placed within the system
         - trigger-rate: how often to capture new images (Hz)
         - sample-system: "last" (default), "first"
+        - trigger-pin: PWM pin to trigger the camera
+        - cache-path: where files are going to be placed
         """
         try:
             self._path = config["capture-path"]
+            self._trigger_pin = config["trigger-pin"]
         except KeyError:
-            print("Error: The capture path is not available")
+            print("Error: The capture path or trigger pin is not available")
 
+        self._backup_path = config.get("cache-path", self._backup_path)
         self._average = config.get("sample-system", self._average)
         self._trigger_rate = config.get("trigger-rate", self._trigger_rate)
+        self._trigger = PWMLED(
+            pin=self._trigger_pin, initial_value=0, frequency=50
+        )
+        self._trigger.value = 0.01
 
         # Initialise the Observer
         self._observer = Observer()

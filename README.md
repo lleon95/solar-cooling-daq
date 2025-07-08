@@ -6,6 +6,7 @@ Make sure of installing the dependencies:
 
 ```bash
 sudo pip3 install uv pre-commit black flake8 isort pdoc
+sudo apt install exiftool
 ```
 
 ### Installing rclone

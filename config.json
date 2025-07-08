@@ -2,19 +2,15 @@
     "groups": [{
         "sensors": [
             {
-                "name": "sensor1",
-                "type": 0,
-                "config": {}
-            },
-            {
-                "name": "sensor2",
-                "type": 0,
-                "config": {}
-            },
-            {
-                "name": "sensor3",
-                "type": 0,
-                "config": {}
+                "name": "thermal",
+                "type": 2,
+                "config" : {
+                    "capture-path": "/home/pi/agrivoltaic/cam",
+                    "sample-system": "last",
+                    "trigger-rate": 0.05,
+                    "trigger-pin": 24,
+                    "cache-path": "/home/pi/agrivoltaic/cache/cam"
+                }
             },
             {
                 "name": "myvoltagesensor0",
@@ -44,7 +40,8 @@
                 "config": {
                     "file": "/home/pi/agrivoltaic/cache/results.csv",
                     "filter": [
-                        ".*sensor1"
+                        ".*sensor1",
+                        ".*thermal"
                     ]
                 }
             },
@@ -68,7 +65,7 @@
             "name": "poller",
             "type": 0,
             "config": {
-                "interval": 15
+                "interval": 30
             }
         }
     }]
