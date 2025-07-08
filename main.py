@@ -75,7 +75,7 @@ def main():
     print("Starting the Poller")
     poller.start(config=configpoller, sensors=sensors, outputs=outputs)
 
-    print("Waiting 30 secs for finishing")
+    print("Running...")
     while True:
         pass
 
