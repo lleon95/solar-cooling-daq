@@ -55,6 +55,18 @@ wheels = [
 ]
 
 [[package]]
+name = "adafruit-circuitpython-dht"
+version = "4.0.8"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "adafruit-blinka" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/35/cd/5e250a0d8de7114fb46556a3bc1173ffda29c9b206f93190cbc868cf3849/adafruit_circuitpython_dht-4.0.8.tar.gz", hash = "sha256:13fd86ff698ada396af698369c297cf98ab04c1b72a0fa55c5c2bb0a35fffebc", size = 27214, upload-time = "2025-05-13T22:02:53.958Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/80/89/ff9eac11d12a01d1c03ad320400f7e4c068d40d59bcd22a75faebbc3267a/adafruit_circuitpython_dht-4.0.8-py3-none-any.whl", hash = "sha256:caa29e200b6014b95dc544c1a44d40631821ab12c771007c8f972ad0bbed3100", size = 7889, upload-time = "2025-05-13T22:02:52.285Z" },
+]
+
+[[package]]
 name = "adafruit-circuitpython-ina228"
 version = "1.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -786,6 +798,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "adafruit-ads1x15" },
+    { name = "adafruit-circuitpython-dht" },
     { name = "adafruit-circuitpython-ina228" },
     { name = "flirimageextractor" },
     { name = "gpiozero" },
@@ -797,6 +810,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "adafruit-ads1x15" },
+    { name = "adafruit-circuitpython-dht", specifier = "==4.0.8" },
     { name = "adafruit-circuitpython-ina228", specifier = "==1.0.1" },
     { name = "flirimageextractor", specifier = "==1.5.3" },
     { name = "gpiozero", specifier = "==2.0.1" },

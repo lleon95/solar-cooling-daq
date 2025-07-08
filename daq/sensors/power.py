@@ -74,7 +74,7 @@ class PowerSensor(ISensor.ISensor):
 
     def read(self) -> dict:
         """
-        Reads the sensor: illustrating the temperature sensor
+        Reads the sensor: illustrating the power sensor
         """
         if not self._started:
             raise RuntimeError("Cannot read because it's not started")
