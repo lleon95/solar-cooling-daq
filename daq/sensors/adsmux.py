@@ -21,11 +21,11 @@ def SetMux(sel: int):
     MUX_S2.value = int(val_str[3])
 
 
-class TemperatureSensor(ISensor.ISensor):
+class AdsMuxSensor(ISensor.ISensor):
     """
-    Sensor implementation of a temperature sensor based on the ADS1115
+    Sensor implementation of a muxed sensor based on the ADS1115
 
-    This reads the sensor and converts into temperature.
+    This reads the sensor and converts into voltage.
     This implementation is custom to the Agrovoltaic project, since
     it multiplexes the input of the channels
     """
@@ -57,9 +57,9 @@ class TemperatureSensor(ISensor.ISensor):
         * busnum: number of the I2C bus
         * channel: channel in the ADS1115
         * muxsel: input on the multiplexer
-        * slope: multiplier to convert voltage by temperature.
-        * offset: minimum temperature.
-        * units: units of the temperature
+        * slope: multiplier to convert voltage.
+        * offset: minimum value.
+        * units: units of the value
 
         Example on a Raspberry Pi 4:
 
@@ -88,7 +88,7 @@ class TemperatureSensor(ISensor.ISensor):
 
     def read(self) -> dict:
         """
-        Reads the sensor: illustrating the temperature sensor
+        Reads the sensor: illustrating the sensor
         """
         if not self._started:
             raise RuntimeError("Cannot read because it's not started")
@@ -99,9 +99,9 @@ class TemperatureSensor(ISensor.ISensor):
         sleep(0.1)  # Stabilise signal
 
         raw_value = self._adc.read_adc(channel=self._channel, gain=self._gain)
-        temp = self._offset + self._slope * raw_value * self._vmax / self._res
+        value = self._offset + self._slope * raw_value * self._vmax / self._res
 
-        reading = {"temperature": temp}
+        reading = {"value": value}
 
         self._adc = None
         return reading
