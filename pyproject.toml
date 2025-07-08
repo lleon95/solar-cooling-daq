@@ -10,4 +10,6 @@ dependencies = [
     "watchdog",
     "FlirImageExtractor==1.5.3",
     "gpiozero==2.0.1",
+    "adafruit-circuitpython-ina228==1.0.1",
+    "RPi.GPIO==0.7.1"
 ]
