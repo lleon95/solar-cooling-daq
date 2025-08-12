@@ -6,7 +6,7 @@ Make sure of installing the dependencies:
 
 ```bash
 sudo pip3 install uv pre-commit black flake8 isort pdoc
-sudo apt install exiftool
+sudo apt install exiftool libcairo2-dev libgirepository-2.0-dev
 ```
 
 ### Installing rclone
