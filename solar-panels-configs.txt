@@ -1,0 +1,14 @@
+# 26 Sep -07 October
+uv run plot-temperatures.py ../october/20251007_100237_R.jpg 110 55 0.88 5.0
+
+# 09-13 October
+uv run plot-temperatures.py ../october/20251013_100016_R.jpg 110 55 0.95 5.0
+
+# 14-15 October
+uv run plot-temperatures.py ../october/20251015_101055_R.jpg 110 50 0.8 5.0
+
+# 16-19 October
+uv run plot-temperatures.py ../october/20251019_101957_R.jpg 98 50 0.8
+
+# 20 October
+uv run plot-temperatures.py ../october/20251020_184316_R.jpg 98 47 0.8
