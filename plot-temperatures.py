@@ -14,6 +14,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 from dateutil import parser as dateparser
 from dotenv import load_dotenv
 import pandas as pd
+from tqdm import tqdm
 
 load_dotenv()
 
@@ -34,6 +35,34 @@ def configure_meta(temp=25.0, humidity=90.0) -> dict:
     meta["PlanckR2"] = 0.046588276
 
     return meta
+
+def get_params(filename: str) -> list:
+    datetime_str = os.path.basename(filename).split('_R')[0]  # or just filename[:15]
+    local_dt = datetime.datetime.strptime(datetime_str, "%Y%m%d_%H%M%S")
+
+    # Filter by time
+    if not (6 <= local_dt.hour < 18):
+        return []
+    
+    # Get params
+    if local_dt.month == 9:
+        return [110,55,0.88,5.0]
+    else:
+        if 0 <= local_dt.day <= 7:
+            return [110,55,0.88,5.0]
+        elif 9 <= local_dt.day <= 13:
+            return [110,55,0.95,5.0]
+        elif 14 <= local_dt.day <= 15:
+            return [110,55,0.8,5.0]
+        elif 16 <= local_dt.day <= 19:
+            return [98,50,0.8]
+        elif local_dt.day == 20:
+            return [98,47,0.8]
+        else:
+            return []
+
+
+
 
 def to_influxdb_time(filename: str) -> str:
     """
@@ -167,10 +196,14 @@ def post_thermal_data(
     org: str,
     bucket: str,
     timestamp_rfc3339: str,
-    thermal_cam_temp_min: float,
-    thermal_cam_temp_max: float,
-    thermal_cam_temp_mean: float,
-    thermal_cam_temp_std: float,
+    thermal_cam_temp_min_left: float,
+    thermal_cam_temp_max_left: float,
+    thermal_cam_temp_mean_left: float,
+    thermal_cam_temp_std_left: float,
+    thermal_cam_temp_min_right: float,
+    thermal_cam_temp_max_right: float,
+    thermal_cam_temp_mean_right: float,
+    thermal_cam_temp_std_right: float,
     location: str = "solar_farm",
     system: str = "raspberry_pi",
     measurement: str = "solar_panel_measurement"
@@ -186,15 +219,19 @@ def post_thermal_data(
             Point(measurement)
             .tag("location", location)
             .tag("system", system)
-            .field("thermal_cam_temp_min", float(thermal_cam_temp_min))
-            .field("thermal_cam_temp_max", float(thermal_cam_temp_max))
-            .field("thermal_cam_temp_mean", float(thermal_cam_temp_mean))
-            .field("thermal_cam_temp_std", float(thermal_cam_temp_std))
+            .field("thermal_cam_temp_min_left", float(thermal_cam_temp_min_left))
+            .field("thermal_cam_temp_max_left", float(thermal_cam_temp_max_left))
+            .field("thermal_cam_temp_mean_left", float(thermal_cam_temp_mean_left))
+            .field("thermal_cam_temp_std_left", float(thermal_cam_temp_std_left))
+            .field("thermal_cam_temp_min_right", float(thermal_cam_temp_min_right))
+            .field("thermal_cam_temp_max_right", float(thermal_cam_temp_max_right))
+            .field("thermal_cam_temp_mean_right", float(thermal_cam_temp_mean_right))
+            .field("thermal_cam_temp_std_right", float(thermal_cam_temp_std_right))
             .time(timestamp_rfc3339, WritePrecision.NS)
         )
 
         write_api.write(bucket=bucket, org=org, record=p)
-        print(f"✅ Wrote data for {timestamp_rfc3339}")
+        tqdm.write(f"✅ Wrote data for {timestamp_rfc3339}")
 
 
 def main():
@@ -202,117 +239,145 @@ def main():
     if len(argv) <= 1:
         print("[ERROR]: needs the image path as an argument.")
         exit(-1)
-
-    timestamp = to_influxdb_time(argv[1])
-    offset_x = 120
-    offset_y = 50
-    zoom = 1.0
-    zoom2 = 1.0
-    if len(argv) >= 3:
-        offset_x = int(argv[2])
-    if len(argv) >= 4:
-        offset_y = int(argv[3])
-    if len(argv) >= 5:
-        zoom = float(argv[4])
-    if len(argv) >= 6:
-        zoom2 = float(argv[5])
     
-    print("Reading the data from Influx")
-    INFLUX_URL = os.getenv("INFLUX_URL")
-    INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
-    INFLUX_ORG = os.getenv("INFLUX_ORG")
-    BUCKET = os.getenv("BUCKET")
+    # Get the folder
+    folder = argv[1]
+    files = [os.path.join(folder, f) for f in os.listdir(folder) if os.path.isfile(os.path.join(folder, f))]
+    print(f"Files to analyse: {len(files)}")
+    for filename in tqdm(files, desc="Processing files"):
 
-    out = interpolate_at_timestamp(
-        url=INFLUX_URL,
-        token=INFLUX_TOKEN,
-        org=INFLUX_ORG,
-        bucket=BUCKET,
-        timestamp_rfc3339=timestamp,
-        lookback=datetime.timedelta(minutes=30),   # adjust as needed
-        location="solar_farm",
-        system="raspberry_pi",
-        measurement="solar_panel_measurement",
-        fields=("ambient_humidity", "ambient_temperature"),
-    )
-    print(f"Humidity: {out['ambient_humidity']}, Temperature: {out['ambient_temperature']} at Timestamp: {timestamp}")
-    if out['ambient_temperature'] is None:
-        print("Cannot read from the DAQ... Skipping")
-        return
+        timestamp = to_influxdb_time(filename)
+        if timestamp is None:
+            tqdm.write("Out of the limits")
+            continue 
 
-    print(f"Reading image: {argv[0]} with timestamp: {timestamp}")
-    print(f"Offset X: {offset_x}, Offset Y: {offset_y}, Zoom: {zoom}, Zoom Outter: {zoom2}")
-    
-    # Decode image
-    flir = FlirImageExtractor()
-    meta = configure_meta(temp=out['ambient_temperature'], humidity=out['ambient_humidity'])
-    flir.process_image(argv[1], meta=meta)
-    thermal_raw = flir.get_thermal_np()
+        offset_x = 120
+        offset_y = 50
+        zoom = 1.0
+        zoom2 = 1.0
+        '''
+        if len(argv) >= 3:
+            offset_x = int(argv[2])
+        if len(argv) >= 4:
+            offset_y = int(argv[3])
+        if len(argv) >= 5:
+            zoom = float(argv[4])
+        if len(argv) >= 6:
+            zoom2 = float(argv[5])
+        '''
+        args = get_params(filename)
+        if len(args) == 0:
+            tqdm.write("Out of the limits")
+            continue 
+        if len(args) >= 1:
+            offset_x = int(args[0])
+        if len(args) >= 2:
+            offset_y = int(args[1])
+        if len(args) >= 3:
+            zoom = float(args[2])
+        if len(args) >= 4:
+            zoom2 = float(args[3])
 
-    print("Cropping and warping image")
-    
+        tqdm.write("Reading the data from Influx")
+        INFLUX_URL = os.getenv("INFLUX_URL")
+        INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
+        INFLUX_ORG = os.getenv("INFLUX_ORG")
+        BUCKET = os.getenv("BUCKET")
 
-    # Extract the ROIs
-    #panel1 = thermal_raw[50:120,106:166]
-    #panel2 = thermal_raw[50:120,186:246]
-    panel1 = thermal_raw[offset_y:int(offset_y + 70 * zoom2),(offset_x + 0 ):int(offset_x + zoom2 * 60 )]
-    panel2 = thermal_raw[offset_y:int(offset_y + 70 * zoom2),(offset_x + 80):int(offset_x + zoom2 * 140)]
+        out = interpolate_at_timestamp(
+            url=INFLUX_URL,
+            token=INFLUX_TOKEN,
+            org=INFLUX_ORG,
+            bucket=BUCKET,
+            timestamp_rfc3339=timestamp,
+            lookback=datetime.timedelta(minutes=90),   # adjust as needed
+            location="solar_farm",
+            system="raspberry_pi",
+            measurement="solar_panel_measurement",
+            fields=("ambient_humidity", "ambient_temperature"),
+        )
+        tqdm.write(f"Humidity: {out['ambient_humidity']}, Temperature: {out['ambient_temperature']} at Timestamp: {timestamp}")
+        if out['ambient_temperature'] is None:
+            tqdm.write("Cannot read from the DAQ... Skipping")
+            continue
 
-    range = [thermal_raw.min(), thermal_raw.max()]
-    
-    plt.figure(0)
-    plt.title("Full Picture")
-    plt.imshow(thermal_raw, vmin=range[0], vmax=range[1])
-    
-    
-    # Mapping points - left
-    l_src_points = np.array([[10,10],[56,10],[6,62]]).astype(np.float32)
-    l_dst_points = np.array([[5,5],[55,5],[5,65]]).astype(np.float32)
+        tqdm.write(f"Reading image: {filename} with timestamp: {timestamp}")
+        tqdm.write(f"Offset X: {offset_x}, Offset Y: {offset_y}, Zoom: {zoom}, Zoom Outter: {zoom2}")
+        
+        # Decode image
+        flir = FlirImageExtractor()
+        meta = configure_meta(temp=out['ambient_temperature'], humidity=out['ambient_humidity'])
+        flir.process_image(filename, meta=meta)
+        thermal_raw = flir.get_thermal_np()
 
-    # Mapping points - right
-    r_src_points = np.array([[5,10],[48,10],[7,63]]).astype(np.float32)
-    r_dst_points = np.array([[5,5],[54,5],[4,65]]).astype(np.float32)
-    # Get transformation and warp
-    r_warp_mat = cv.getAffineTransform(r_src_points, r_dst_points)
-    r_panel = cv.warpAffine(panel2, r_warp_mat, (panel2.shape[1], panel2.shape[0]))
-    #r_panel = r_panel[3:42,7:42]
-    r_panel_cropped = r_panel[5:int(65 * zoom), 5:int(55 * zoom)]
+        tqdm.write("Cropping and warping image")
+        
 
-    l_warp_mat = cv.getAffineTransform(l_src_points, l_dst_points)
-    l_panel = cv.warpAffine(panel1, l_warp_mat, (panel1.shape[1], panel1.shape[0]))
-    #l_panel = l_panel[3:41,8:43]
-    l_panel_cropped = l_panel[5:int(65 * zoom), 5:int(55 * zoom)]
-    
+        # Extract the ROIs
+        #panel1 = thermal_raw[50:120,106:166]
+        #panel2 = thermal_raw[50:120,186:246]
+        panel1 = thermal_raw[offset_y:int(offset_y + 70 * zoom2),(offset_x + 0 ):int(offset_x + zoom2 * 60 )]
+        panel2 = thermal_raw[offset_y:int(offset_y + 70 * zoom2),(offset_x + 80):int(offset_x + zoom2 * 140)]
 
-    # Plot
-    range = [min(r_panel_cropped.min(), l_panel_cropped.min()), max(r_panel_cropped.max(), l_panel_cropped.max())]
-    std = (l_panel_cropped.std() + r_panel_cropped.std()) / 2.0
-    mean = (l_panel_cropped.mean() + r_panel_cropped.mean()) / 2.0
-    print(f"Min Temp: {range[0]}, Max Temp: {range[1]}")
-    post_thermal_data(
-        url=INFLUX_URL,
-        token=INFLUX_TOKEN,
-        org=INFLUX_ORG,
-        bucket=BUCKET,
-        timestamp_rfc3339=timestamp,
-        thermal_cam_temp_min=range[0],
-        thermal_cam_temp_max=range[1],
-        thermal_cam_temp_mean=mean,
-        thermal_cam_temp_std=std
-    )
-    
-    '''
-    plt.figure(1)
-    plt.title("Left Panel")
-    #plt.imshow(l_panel, vmin=range[0], vmax=range[1])
-    plt.imshow(l_panel_cropped, vmin=range[0], vmax=range[1])
+        range = [thermal_raw.min(), thermal_raw.max()]
+        
+        plt.figure(0)
+        plt.title("Full Picture")
+        plt.imshow(thermal_raw, vmin=range[0], vmax=range[1])
+        
+        
+        # Mapping points - left
+        l_src_points = np.array([[10,10],[56,10],[6,62]]).astype(np.float32)
+        l_dst_points = np.array([[5,5],[55,5],[5,65]]).astype(np.float32)
 
-    plt.figure(2)
-    plt.title("Right Panel") 
-    plt.imshow(r_panel_cropped, vmin=range[0], vmax=range[1])
+        # Mapping points - right
+        r_src_points = np.array([[5,10],[48,10],[7,63]]).astype(np.float32)
+        r_dst_points = np.array([[5,5],[54,5],[4,65]]).astype(np.float32)
+        # Get transformation and warp
+        r_warp_mat = cv.getAffineTransform(r_src_points, r_dst_points)
+        r_panel = cv.warpAffine(panel2, r_warp_mat, (panel2.shape[1], panel2.shape[0]))
+        #r_panel = r_panel[3:42,7:42]
+        r_panel_cropped = r_panel[5:int(65 * zoom), 5:int(55 * zoom)]
 
-    plt.show()
-    '''
+        l_warp_mat = cv.getAffineTransform(l_src_points, l_dst_points)
+        l_panel = cv.warpAffine(panel1, l_warp_mat, (panel1.shape[1], panel1.shape[0]))
+        #l_panel = l_panel[3:41,8:43]
+        l_panel_cropped = l_panel[5:int(65 * zoom), 5:int(55 * zoom)]
+        
+
+        # Plot
+        range = [min(r_panel_cropped.min(), l_panel_cropped.min()), max(r_panel_cropped.max(), l_panel_cropped.max())]
+        std = (l_panel_cropped.std() + r_panel_cropped.std()) / 2.0
+        mean = (l_panel_cropped.mean() + r_panel_cropped.mean()) / 2.0
+        tqdm.write(f"Min Temp: {range[0]}, Max Temp: {range[1]}")
+        post_thermal_data(
+            url=INFLUX_URL,
+            token=INFLUX_TOKEN,
+            org=INFLUX_ORG,
+            bucket=BUCKET,
+            timestamp_rfc3339=timestamp,
+            thermal_cam_temp_min_left=l_panel_cropped.min(),
+            thermal_cam_temp_max_left=l_panel_cropped.max(),
+            thermal_cam_temp_mean_left=l_panel_cropped.mean(),
+            thermal_cam_temp_std_left=l_panel_cropped.std(),
+            thermal_cam_temp_min_right=r_panel_cropped.min(),
+            thermal_cam_temp_max_right=r_panel_cropped.max(),
+            thermal_cam_temp_mean_right=r_panel_cropped.mean(),
+            thermal_cam_temp_std_right=r_panel_cropped.std()
+        )
+        
+        '''
+        plt.figure(1)
+        plt.title("Left Panel")
+        #plt.imshow(l_panel, vmin=range[0], vmax=range[1])
+        plt.imshow(l_panel_cropped, vmin=range[0], vmax=range[1])
+
+        plt.figure(2)
+        plt.title("Right Panel") 
+        plt.imshow(r_panel_cropped, vmin=range[0], vmax=range[1])
+
+        plt.show()
+        '''
 
 
 if __name__ == "__main__":
