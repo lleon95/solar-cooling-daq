@@ -12,3 +12,6 @@ uv run plot-temperatures.py ../october/20251019_101957_R.jpg 98 50 0.8
 
 # 20 October
 uv run plot-temperatures.py ../october/20251020_184316_R.jpg 98 47 0.8
+
+for i in `ls ../october/20251020_1*`; do echo $i; done
+for i in `ls ../october/20251020_1*`; do uv run plot-temperatures.py $i 110 55 0.88 5.0; done
