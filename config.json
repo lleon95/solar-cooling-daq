@@ -1,0 +1,72 @@
+{
+    "groups": [{
+        "sensors": [
+            {
+                "name": "thermal",
+                "type": 2,
+                "config" : {
+                    "capture-path": "/home/pi/agrivoltaic/cam",
+                    "sample-system": "last",
+                    "trigger-rate": 0.05,
+                    "trigger-pin": 24,
+                    "cache-path": "/home/pi/agrivoltaic/cache/cam"
+                }
+            },
+            {
+                "name": "myvoltagesensor0",
+                "type": 1,
+                "config": {
+                    "busnum": 1,
+                    "gain": 1,
+                    "channel": 0,
+                    "vmax": 4.096
+                }
+            },
+            {
+                "name": "temp-ads1115-0.4",
+                "type": 3,
+                "config": {
+                    "channel": 0,
+                    "muxsel": 4,
+                    "slope": 1.0,
+                    "offset": 0.0
+                }
+            }
+        ],
+        "outputs": [
+            {
+                "name": "csvwriter",
+                "type": 0,
+                "config": {
+                    "file": "/home/pi/agrivoltaic/cache/results.csv",
+                    "filter": [
+                        ".*sensor1",
+                        ".*thermal"
+                    ]
+                }
+            },
+            {
+                "name": "console",
+                "type": 1,
+                "config": {
+                }
+            },
+            {
+                "name": "rclone",
+                "type": 2,
+                "config": {
+                    "remote_path": "/agrivoltaic",
+                    "remote": "ecaslab",
+                    "host_path": "/home/pi/agrivoltaic/cache"
+                }
+            }
+        ],
+        "poller": {
+            "name": "poller",
+            "type": 0,
+            "config": {
+                "interval": 30
+            }
+        }
+    }]
+}

@@ -1,0 +1,22 @@
+[project]
+name = "solar-cooling-daq"
+version = "0.1.0"
+description = "A capture system to analyse solar cells behaviour while varying temperature"
+readme = "README.md"
+requires-python = "==3.9.21"
+dependencies = [
+    "Adafruit-ADS1x15",
+    "pdoc",
+    "watchdog",
+    "FlirImageExtractor==1.5.3",
+    "gpiozero==2.0.1",
+    "adafruit-circuitpython-ina228==1.0.1",
+    "RPi.GPIO==0.7.1",
+    "adafruit-circuitpython-dht==4.0.8",
+    "rpi-lgpio",
+    "pygobject==3.52.3",
+    "pycairo==1.28.0",
+    "influxdb_client==1.49.0",
+    "python-dotenv>=1.2.1",
+    "pandas>=2.0.3",
+]

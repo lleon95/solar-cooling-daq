@@ -1,0 +1,67 @@
+name: Generate & Deploy Docs
+
+on:
+  push:
+    branches: [main, develop, feature/add-mock-pins-ci-cd]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libcairo2-dev libgirepository1.0-dev
+
+      - name: Install the project
+        run: |
+          uv sync --all-extras
+
+      - name: Prepare README for pdoc
+        run: cd docs && python ./prepare_links.py && cd ..
+
+      - name: Build docs with pdoc
+        run: |
+          source .venv/bin/activate
+          export GPIOZERO_PIN_FACTORY=mock
+          pdoc daq --output-dir docs --show-source
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+  # Deployment job
+  deploy:
+    permissions:
+      id-token: write
+      pages: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    needs: build-docs
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
