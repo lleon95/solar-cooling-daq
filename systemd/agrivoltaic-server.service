@@ -1,0 +1,11 @@
+[Unit]
+Description=Agrivoltaic Server
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/agrivoltaic-server.sh
+Restart=on-failure
+User=pi
+
+[Install]
+WantedBy=multi-user.target
