@@ -13,5 +13,10 @@ dependencies = [
     "adafruit-circuitpython-ina228==1.0.1",
     "RPi.GPIO==0.7.1",
     "adafruit-circuitpython-dht==4.0.8",
-    "rpi-lgpio"
+    "rpi-lgpio",
+    "pygobject==3.52.3",
+    "pycairo==1.28.0",
+    "influxdb_client==1.49.0",
+    "python-dotenv>=1.2.1",
+    "pandas>=2.0.3",
 ]
